@@ -1,7 +1,4 @@
-import { removeProduct } from "@/actions/products";
 import { getProducts } from "@/prisma-db";
-import Link from "next/link";
-import React, { useOptimistic } from "react";
 import { ProductDetail } from "./product-details";
 
 export type Product = {
@@ -11,8 +8,13 @@ export type Product = {
   description: string | null;
 };
 
-export default async function ProductDB() {
-  const products: Product[] = await getProducts();
+export default async function ProductDB({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
+}) {
+  const { query } = await searchParams;
+  const products: Product[] = await getProducts(query);
 
   return <ProductDetail products={products} />;
 }

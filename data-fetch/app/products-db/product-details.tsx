@@ -1,7 +1,9 @@
 "use client";
+
+import { useOptimistic } from "react";
 import { removeProduct } from "@/actions/products";
 import Link from "next/link";
-import React, { useOptimistic } from "react";
+import Form from "next/form";
 
 export type Product = {
   id: number;
@@ -11,7 +13,7 @@ export type Product = {
 };
 
 export const ProductDetail = ({ products }: { products: Product[] }) => {
-  const [optProduct, setoptProduct] = useOptimistic(
+  const [optimisticProducts, setOptimisticProducts] = useOptimistic(
     products,
     (currentProducts, productId) => {
       return currentProducts.filter((product) => product.id !== productId);
@@ -19,29 +21,32 @@ export const ProductDetail = ({ products }: { products: Product[] }) => {
   );
 
   const removeProductById = async (productId: number) => {
-    setoptProduct(productId);
+    setOptimisticProducts(productId);
     await removeProduct(productId);
   };
+
   return (
-    <>
-      <div>
-        {optProduct.map((products) => (
-          <>
-            <li key={products.id}>
-              <Link href={`/products-db/${products.id}`}>
-                <h2>{products.title}</h2>
-              </Link>
-              <h2>{products.description}</h2>
-              <h2>{products.price}</h2>
-            </li>
-            <form action={removeProductById.bind(null, products.id)}>
-              <button type="submit" className="bg-red-500">
-                delete
-              </button>
-            </form>
-          </>
-        ))}
-      </div>
-    </>
+    <ul className="space-y-4 p-4">
+      {optimisticProducts.map((product) => (
+        <li
+          key={product.id}
+          className="p-4 bg-white shadow-md rounded-lg text-gray-700"
+        >
+          <h2 className="text-xl font-semibold">
+            <Link href={`/products-db/${product.id}`}>{product.title}</Link>
+          </h2>
+          <p>{product.description}</p>
+          <p className="text-lg font-medium">${product.price}</p>
+          <Form action={removeProductById.bind(null, product.id)}>
+            <button
+              type="submit"
+              className="px-4 py-2 mt-4 text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-600"
+            >
+              Delete
+            </button>
+          </Form>
+        </li>
+      ))}
+    </ul>
   );
 };
