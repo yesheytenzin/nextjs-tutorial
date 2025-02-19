@@ -1,15 +1,17 @@
 "use client";
 
-import { FormState, createProduct } from "@/actions/products";
+import { FormState, editProduct } from "@/actions/products";
 import { Submit } from "@/components/submit";
 import { useActionState } from "react";
+import { Product } from "../page";
 
-export default function AddProductPage() {
+export default function EditProductForm({ product }: { product: Product }) {
   const initialState: FormState = {
     errors: {},
   };
+  const editProductWithID = editProduct.bind(null, product.id);
 
-  const [state, formAction] = useActionState(createProduct, initialState);
+  const [state, formAction] = useActionState(editProductWithID, initialState);
 
   return (
     <form action={formAction} className="p-4 space-y-4 max-w-96">
@@ -20,6 +22,7 @@ export default function AddProductPage() {
             type="text"
             className="block w-full p-2 text-black border rounded"
             name="title"
+            defaultValue={product.title}
           />
         </label>
         {state.errors.title && (
@@ -33,6 +36,7 @@ export default function AddProductPage() {
             type="number"
             className="block w-full p-2 text-black border rounded"
             name="price"
+            defaultValue={product.price}
           />
         </label>
         {state.errors.price && (
@@ -45,6 +49,7 @@ export default function AddProductPage() {
           <textarea
             className="block w-full p-2 text-black border rounded"
             name="description"
+            defaultValue={product.description ?? ""}
           />
         </label>
         {state.errors.description && (
