@@ -1,7 +1,26 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware();
+// const isProtectedRoute = createRouteMatcher(["/user-profile"]);
+const isPublic = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
+const isAdmin = createRouteMatcher(["/admin(.*)"]);
 
+export default clerkMiddleware(async (auth, req) => {
+  //   if (!isPublic(req)) await auth.protect();
+  if (
+    isAdmin(req) &&
+    (await auth()).sessionClaims?.metadata?.role !== "admin"
+  ) {
+    const url = new URL("/", req.url);
+    return NextResponse.redirect(url);
+  }
+
+  const { userId, redirectToSignIn } = await auth();
+  if (!userId && !isPublic(req)) {
+    // add custom logic to run vefore redirecting
+    redirectToSignIn();
+  }
+});
 export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params

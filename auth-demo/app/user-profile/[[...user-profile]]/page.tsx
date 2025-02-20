@@ -1,6 +1,6 @@
 import { UserProfile } from "@clerk/nextjs";
 
-export default function UserProfilePage() {
+export default async function UserProfilePage() {
   return (
     <div className="flex justify-center items-center py-8">
       <UserProfile path="/user-profile" />
